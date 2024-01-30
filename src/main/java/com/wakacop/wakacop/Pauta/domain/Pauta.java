@@ -1,5 +1,6 @@
 package com.wakacop.wakacop.Pauta.domain;
 
+import com.wakacop.wakacop.application.api.NovaPautaRequest;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -21,4 +22,11 @@ public class Pauta {
     private String descricao;
     private UUID idAssociadoAutor;
     private LocalDateTime dataCriacao;
+
+    public Pauta (NovaPautaRequest novaPauta){
+        this.titulo = novaPauta.getTitulo();
+        this.descricao=novaPauta.getDescricao();
+        this.idAssociadoAutor=novaPauta.getIdAssociadoAutor();
+        this.dataCriacao = LocalDateTime.now();
+    }
 }
