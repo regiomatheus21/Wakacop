@@ -1,11 +1,12 @@
 package com.wakacop.wakacop.Pauta.domain;
 
 import com.wakacop.wakacop.application.api.NovaPautaRequest;
-import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+
+import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
