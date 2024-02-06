@@ -23,4 +23,8 @@ public class VotoPauta {
     private String cpfAssociado;
     private OpcaoVoto opcaoVoto;
     private LocalDateTime momentoVoto;
+
+    public boolean opcaoIgual(OpcaoVoto opcao) {
+        return this.opcaoVoto.equals(opcao);
+    }
 }

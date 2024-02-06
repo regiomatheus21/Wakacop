@@ -1,6 +1,7 @@
 package com.wakacop.wakacop.sessaovotacao.domain;
 
 import com.wakacop.wakacop.Pauta.domain.Pauta;
+import com.wakacop.wakacop.sessaovotacao.application.api.ResultadoSessaoResponse;
 import com.wakacop.wakacop.sessaovotacao.application.api.SessaoAberturaRequest;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -42,5 +43,40 @@ public class SessaoVotacao {
         this.momentoEncerramento = momentoAbertura.plusMinutes(this.tempoDuracao);
         this.status = StatusSessaoVotacao.ABERTA;
         this.votos = new HashMap<>();
+    }
+    public ResultadoSessaoResponse obtemResultado(PublicadorResultadoSessao publicadorResultadoSessao){
+        atualizaStatus(publicadorResultadoSessao);
+        return new ResultadoSessaoResponse(this);
+    }
+
+    private void atualizaStatus(PublicadorResultadoSessao publicadorResultadoSessao) {
+        if(this.status.equals(StatusSessaoVotacao.ABERTA)){
+            if (LocalDateTime.now().isAfter(this.momentoEncerramento)){
+                fechaSessao(publicadorResultadoSessao);
+            }
+        }
+    }
+
+    private void fechaSessao(PublicadorResultadoSessao publicadorResultadoSessao) {
+        this.status = StatusSessaoVotacao.FECHADA;
+        publicadorResultadoSessao.publica(new ResultadoSessaoResponse(this));
+    }
+
+    public Long getTotalVotos() {
+        return Long.valueOf(this.votos.size());
+    }
+
+    public Long getTotalSim() {
+        return calculaVotosPorOpcao(OpcaoVoto.SIM);
+    }
+
+    private Long calculaVotosPorOpcao(OpcaoVoto opcao) {
+        return votos.values().stream()
+                .filter(votos -> votos.opcaoIgual(opcao))
+                .count();
+    }
+
+    public Long getTotalNao() {
+        return calculaVotosPorOpcao(OpcaoVoto.NAO);
     }
 }
