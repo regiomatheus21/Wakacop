@@ -1,8 +1,11 @@
 package com.wakacop.wakacop.sessaovotacao.domain;
 
 import com.wakacop.wakacop.Pauta.domain.Pauta;
+import com.wakacop.wakacop.associado.application.service.AssociadoService;
 import com.wakacop.wakacop.sessaovotacao.application.api.ResultadoSessaoResponse;
 import com.wakacop.wakacop.sessaovotacao.application.api.SessaoAberturaRequest;
+import com.wakacop.wakacop.sessaovotacao.application.api.VotoRequest;
+import com.wakacop.wakacop.sessaovotacao.application.api.VotoResponse;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -47,6 +50,31 @@ public class SessaoVotacao {
     public ResultadoSessaoResponse obtemResultado(PublicadorResultadoSessao publicadorResultadoSessao){
         atualizaStatus(publicadorResultadoSessao);
         return new ResultadoSessaoResponse(this);
+    }
+    public VotoPauta recebeVotos (VotoRequest votoRequest, AssociadoService associadoService, PublicadorResultadoSessao publicadorResultadoSessao){
+        validaSessaoAberta(publicadorResultadoSessao);
+        validaAssociado(votoRequest.getCpfAssociado(),associadoService);
+        VotoPauta voto = new VotoPauta(this,votoRequest);
+        votos.put(votoRequest.getCpfAssociado(),voto);
+        return voto;
+    }
+
+    private void validaAssociado(String cpfAssociado, AssociadoService associadoService) {
+        associadoService.validaAssociadoAptoVoto(cpfAssociado);
+        validaVotoDuplicado(cpfAssociado);
+    }
+
+    private void validaVotoDuplicado(String cpfAssociado) {
+        if(this.votos.containsKey(cpfAssociado)){
+            throw new RuntimeException("Associado ja votou nessa sessao");
+        }
+    }
+
+    private void validaSessaoAberta(PublicadorResultadoSessao publicadorResultadoSessao) {
+        atualizaStatus(publicadorResultadoSessao);
+        if(this.status.equals(StatusSessaoVotacao.FECHADA)){
+            throw new RuntimeException("Sessao está fechada");
+        }
     }
 
     private void atualizaStatus(PublicadorResultadoSessao publicadorResultadoSessao) {
