@@ -1,5 +1,6 @@
 package com.wakacop.wakacop.sessaovotacao.domain;
 
+import com.wakacop.wakacop.sessaovotacao.application.api.VotoRequest;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,6 +24,15 @@ public class VotoPauta {
     private String cpfAssociado;
     private OpcaoVoto opcaoVoto;
     private LocalDateTime momentoVoto;
+
+    public VotoPauta (SessaoVotacao sessaoVotacao, VotoRequest votoRequest){
+        this.sessaoVotacao = sessaoVotacao;
+        this.cpfAssociado = votoRequest.getCpfAssociado();
+        this.opcaoVoto = votoRequest.getOpcaoVoto();
+        this.momentoVoto = LocalDateTime.now();
+    }
+
+    public UUID getIdSessao(){return this.sessaoVotacao.getId();}
 
     public boolean opcaoIgual(OpcaoVoto opcao) {
         return this.opcaoVoto.equals(opcao);
