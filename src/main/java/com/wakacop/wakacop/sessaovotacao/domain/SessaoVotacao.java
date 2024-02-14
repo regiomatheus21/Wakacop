@@ -21,6 +21,7 @@ import javax.persistence.*;
 @Getter
 @ToString
 @Entity
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class SessaoVotacao {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -51,6 +52,18 @@ public class SessaoVotacao {
         atualizaStatus(publicadorResultadoSessao);
         return new ResultadoSessaoResponse(this);
     }
+    private void atualizaStatus(PublicadorResultadoSessao publicadorResultadoSessao) {
+        if (this.status.equals(StatusSessaoVotacao.ABERTA)){
+            if (LocalDateTime.now().isAfter(this.momentoEncerramento)){
+                fechaSessao(publicadorResultadoSessao);
+            }
+        }
+    }
+    private void fechaSessao(PublicadorResultadoSessao publicadorResultadoSessao) {
+        this.status = StatusSessaoVotacao.FECHADA;
+        publicadorResultadoSessao.publica(new ResultadoSessaoResponse(this));
+    }
+
     public VotoPauta recebeVotos (VotoRequest votoRequest, AssociadoService associadoService, PublicadorResultadoSessao publicadorResultadoSessao){
         validaSessaoAberta(publicadorResultadoSessao);
         validaAssociado(votoRequest.getCpfAssociado(),associadoService);
@@ -58,7 +71,6 @@ public class SessaoVotacao {
         votos.put(votoRequest.getCpfAssociado(),voto);
         return voto;
     }
-
     private void validaAssociado(String cpfAssociado, AssociadoService associadoService) {
         associadoService.validaAssociadoAptoVoto(cpfAssociado);
         validaVotoDuplicado(cpfAssociado);
@@ -66,30 +78,16 @@ public class SessaoVotacao {
 
     private void validaVotoDuplicado(String cpfAssociado) {
         if(this.votos.containsKey(cpfAssociado)){
-            throw new RuntimeException("Associado ja votou nessa sessao");
+            throw new RuntimeException("Associado já Votou nessa sessão!");
         }
     }
 
     private void validaSessaoAberta(PublicadorResultadoSessao publicadorResultadoSessao) {
         atualizaStatus(publicadorResultadoSessao);
-        if(this.status.equals(StatusSessaoVotacao.FECHADA)){
-            throw new RuntimeException("Sessao está fechada");
+        if (this.status.equals(StatusSessaoVotacao.FECHADA)){
+            throw new RuntimeException("Sessão está fechada!");
         }
     }
-
-    private void atualizaStatus(PublicadorResultadoSessao publicadorResultadoSessao) {
-        if(this.status.equals(StatusSessaoVotacao.ABERTA)){
-            if (LocalDateTime.now().isAfter(this.momentoEncerramento)){
-                fechaSessao(publicadorResultadoSessao);
-            }
-        }
-    }
-
-    private void fechaSessao(PublicadorResultadoSessao publicadorResultadoSessao) {
-        this.status = StatusSessaoVotacao.FECHADA;
-        publicadorResultadoSessao.publica(new ResultadoSessaoResponse(this));
-    }
-
     public Long getTotalVotos() {
         return Long.valueOf(this.votos.size());
     }
@@ -98,13 +96,13 @@ public class SessaoVotacao {
         return calculaVotosPorOpcao(OpcaoVoto.SIM);
     }
 
+    public Long getTotalNao() {
+        return calculaVotosPorOpcao(OpcaoVoto.NAO);
+    }
+
     private Long calculaVotosPorOpcao(OpcaoVoto opcao) {
         return votos.values().stream()
                 .filter(votos -> votos.opcaoIgual(opcao))
                 .count();
-    }
-
-    public Long getTotalNao() {
-        return calculaVotosPorOpcao(OpcaoVoto.NAO);
     }
 }

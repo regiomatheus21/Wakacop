@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 @Log4j2
-public class AssociadoApplicationService {
+public class AssociadoApplicationService implements AssociadoService {
     private final SerproClientFeign serproClientFeign;
 
     public void validaAssociadoAptoVoto(String cpfAssociado){
