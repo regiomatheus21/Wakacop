@@ -19,7 +19,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
 @Configuration
-@EnableFeignClients(basePackages = {"academy.wakanda"})
+@EnableFeignClients(basePackages = {"com.wakacop"})
 @EnableDiscoveryClient
 public class FeignConfig {
     @Value("${feign.connectTimeout:30000}")
