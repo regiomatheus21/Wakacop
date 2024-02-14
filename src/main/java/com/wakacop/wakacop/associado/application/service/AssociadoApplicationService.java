@@ -1,5 +1,7 @@
 package com.wakacop.wakacop.associado.application.service;
 
+import com.wakacop.wakacop.associado.infra.client.ConsultaCPFResponse;
+import com.wakacop.wakacop.associado.infra.client.SerproClientFeign;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
